@@ -58,3 +58,15 @@ docker-compose exec demo-app poetry run python -m api.migrate_db
 ```bash
 docker-compose exec db mysql demo
 ```
+
+### ORの書き方
+
+pythonだとorは予約語なので、
+```bash
+from sqlalchemy import select,or_
+```
+して、
+```python
+filter(or_(transaction_model.Transaction.lender_id == user_id,transaction_model.Transaction.borrower_id == user_id)
+```
+こんな感じで使う

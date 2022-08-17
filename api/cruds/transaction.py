@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Tuple, Optional
 import api.models.transaction as transaction_model
 import api.schemas.transaction as transaction_schema
-from sqlalchemy import select
+from sqlalchemy import select,or_
 
 
 async def create_transaction(
@@ -88,5 +88,19 @@ async def get_lend_transactions(db: AsyncSession, lender_id: int) -> List[transa
             transaction_model.Transaction.is_done,
             transaction_model.Transaction.is_accepted
         ).filter(transaction_model.Transaction.lender_id == lender_id)
+    )
+    return result.all()
+
+async def get_both_transactions(db: AsyncSession, user_id: int) -> List[transaction_model.Transaction]:
+    result: Result = await db.execute(
+        select(
+            transaction_model.Transaction.transaction_id,
+            transaction_model.Transaction.borrower_id,
+            transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.yen,
+            transaction_model.Transaction.description,
+            transaction_model.Transaction.is_done,
+            transaction_model.Transaction.is_accepted
+        ).filter(or_(transaction_model.Transaction.lender_id == user_id,transaction_model.Transaction.borrower_id == user_id))
     )
     return result.all()
