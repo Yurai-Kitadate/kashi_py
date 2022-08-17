@@ -21,6 +21,9 @@ async def get_transaction(db: AsyncSession, transaction_id: int) -> Optional[tra
     transaction: Optional[Tuple[transaction_model.Transaction]] = result.first()
     return transaction[0] if transaction is not None else None 
 
+async def delete_transaction(db: AsyncSession, original: transaction_model.Transaction) -> None:
+    await db.delete(original)
+    await db.commit()
 
 async def done_transaction(
     db: AsyncSession, transaction_create: transaction_schema.RequestedTransaction, original: transaction_model.Transaction
@@ -56,3 +59,6 @@ async def get_transactions(db: AsyncSession) -> List[Tuple[int, int,int,int,str,
     )
     return result.all()
 
+async def delete_transaction(db: AsyncSession, original: transaction_model.Transaction) -> None:
+    await db.delete(original)
+    await db.commit()

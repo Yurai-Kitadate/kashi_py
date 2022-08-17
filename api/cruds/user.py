@@ -23,3 +23,14 @@ async def get_users(db: AsyncSession) -> List[Tuple[int,str]]:
         )
     )
     return result.all()
+
+async def get_user(db: AsyncSession, user_id: int) -> Optional[user_model.User]:
+    result: Result = await db.execute(
+        select(user_model.User).filter(user_model.User.user_id == user_id)
+    )
+    user: Optional[Tuple[user_model.User]] = result.first()
+    return user[0] if user is not None else None 
+
+async def delete_user(db: AsyncSession, original: user_model.User) -> None:
+    await db.delete(original)
+    await db.commit()

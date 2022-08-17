@@ -36,3 +36,11 @@ async def done_transaction(
 @router.get("/get/transactions", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_transactions(db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_transactions(db)
+
+@router.delete("/delete/transaction/{transaction_id}", response_model=None)
+async def delete_user(transaction_id: int, db: AsyncSession = Depends(get_db)):
+    transaction = await transaction_crud.get_transaction(db, transaction_id=transaction_id)
+    if transaction is None:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    return await transaction_crud.delete_transaction(db, original=transaction)

@@ -1,5 +1,11 @@
 # kashi_py
 
+### Open API
+```bash
+http://localhost:8000/docs#/
+```
+を確認。
+
 ### docker-compose コマンドが失敗する場合
 cliかdocker desktopでコンテナを起動すると治る(だいたい)
 
