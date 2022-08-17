@@ -1,5 +1,8 @@
 # kashi_py
 
+### docker-compose コマンドが失敗する場合
+cliかdocker desktopでコンテナを起動すると治る(だいたい)
+
 ### イメージのビルド
 
 ```bash

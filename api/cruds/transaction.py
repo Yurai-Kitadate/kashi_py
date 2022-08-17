@@ -6,13 +6,13 @@ from sqlalchemy import select
 
 
 async def create_transaction(
-    db: AsyncSession, task_create: transaction_schema.InsertedTransaction
+    db: AsyncSession, created_transaction: transaction_schema.InsertedTransaction
 ) -> transaction_model.Transaction:
-    task = transaction_model.Transaction(**task_create.dict())
-    db.add(task)
+    transaction = transaction_model.Transaction(**created_transaction.dict())
+    db.add(transaction)
     await db.commit()
-    await db.refresh(task)
-    return task
+    await db.refresh(transaction)
+    return transaction
 
 async def get_transaction(db: AsyncSession, transaction_id: int) -> Optional[transaction_model.Transaction]:
     result: Result = await db.execute(
@@ -30,3 +30,29 @@ async def done_transaction(
     await db.commit()
     await db.refresh(original)
     return original
+
+async def accept_transaction(
+    db: AsyncSession, transaction_create: transaction_schema.RequestedTransaction, original: transaction_model.Transaction
+) -> transaction_model.Transaction:
+    original.is_accepted = 1
+    db.add(original)
+    await db.commit()
+    await db.refresh(original)
+    return original
+
+async def get_transactions(db: AsyncSession) -> List[Tuple[int, int,int,int,str,int,int]]:
+    result: Result = await (
+        db.execute(
+            select(
+                transaction_model.Transaction.transaction_id,
+                transaction_model.Transaction.renter_id,
+                transaction_model.Transaction.lender_id,
+                transaction_model.Transaction.yen,
+                transaction_model.Transaction.description,
+                transaction_model.Transaction.is_done,
+                transaction_model.Transaction.is_accepted
+            )
+        )
+    )
+    return result.all()
+

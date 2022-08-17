@@ -9,6 +9,10 @@ router = APIRouter()
 
 @router.post("/create/user", response_model=user_schema.ReturnedUser)
 async def create_user(
-    task_body: user_schema.InsertedUser, db: AsyncSession = Depends(get_db)
+    user_body: user_schema.InsertedUser, db: AsyncSession = Depends(get_db)
 ):
-    return await user_crud.create_user(db, task_body)
+    return await user_crud.create_user(db, user_body)
+
+@router.get("/get/users", response_model=List[user_schema.ReturnedUser])
+async def get_users(db: AsyncSession = Depends(get_db)):
+    return await user_crud.get_users(db)
