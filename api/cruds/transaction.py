@@ -48,7 +48,7 @@ async def get_transactions(db: AsyncSession) -> List[Tuple[int, int,int,int,str,
         db.execute(
             select(
                 transaction_model.Transaction.transaction_id,
-                transaction_model.Transaction.renter_id,
+                transaction_model.Transaction.borrower_id,
                 transaction_model.Transaction.lender_id,
                 transaction_model.Transaction.yen,
                 transaction_model.Transaction.description,
@@ -62,3 +62,17 @@ async def get_transactions(db: AsyncSession) -> List[Tuple[int, int,int,int,str,
 async def delete_transaction(db: AsyncSession, original: transaction_model.Transaction) -> None:
     await db.delete(original)
     await db.commit()
+
+async def get_borrow_transactions(db: AsyncSession, borrower_id: int) -> List[transaction_model.Transaction]:
+    result: Result = await db.execute(
+        select(
+            transaction_model.Transaction.transaction_id,
+            transaction_model.Transaction.borrower_id,
+            transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.yen,
+            transaction_model.Transaction.description,
+            transaction_model.Transaction.is_done,
+            transaction_model.Transaction.is_accepted
+        ).filter(transaction_model.Transaction.borrower_id == borrower_id)
+    )
+    return result.all()

@@ -44,3 +44,7 @@ async def delete_user(transaction_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Transaction not found")
 
     return await transaction_crud.delete_transaction(db, original=transaction)
+
+@router.get("/transaction/borrow/{borrower_id}", response_model=List[transaction_schema.ReturnedTransaction])
+async def get_borrow_transactions(borrower_id: int, db: AsyncSession = Depends(get_db)):
+    return await transaction_crud.get_borrow_transactions(db, borrower_id=borrower_id)
