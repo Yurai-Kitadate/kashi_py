@@ -48,3 +48,7 @@ async def delete_user(transaction_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/transaction/borrow/{borrower_id}", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_borrow_transactions(borrower_id: int, db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_borrow_transactions(db, borrower_id=borrower_id)
+
+@router.get("/transaction/lend/{lender_id}", response_model=List[transaction_schema.ReturnedTransaction])
+async def get_lender_transactions(lender_id: int, db: AsyncSession = Depends(get_db)):
+    return await transaction_crud.get_lend_transactions(db, lender_id=lender_id)
