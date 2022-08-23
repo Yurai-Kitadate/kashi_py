@@ -24,3 +24,7 @@ async def delete_user(user_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return await user_crud.delete_user(db, original=user)
+
+@router.get("/get/user/{user_id}", response_model=List[user_schema.ReturnedUser])
+async def get_user(user_id: int,db: AsyncSession = Depends(get_db)):
+    return await user_crud.get_user(db,user_id=user_id)

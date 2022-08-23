@@ -34,3 +34,14 @@ async def get_user(db: AsyncSession, user_id: int) -> Optional[user_model.User]:
 async def delete_user(db: AsyncSession, original: user_model.User) -> None:
     await db.delete(original)
     await db.commit()
+    
+async def get_user(db: AsyncSession, user_id: int) -> List[Tuple[int,str]]:
+    result: Result = await (
+        db.execute(
+            select(
+                user_model.User.user_id,
+                user_model.User.user_name,
+            ).filter(user_model.User.user_id == user_id)
+        )
+    )
+    return result.all()

@@ -45,14 +45,14 @@ async def delete_user(transaction_id: int, db: AsyncSession = Depends(get_db)):
 
     return await transaction_crud.delete_transaction(db, original=transaction)
 
-@router.get("/get/transaction/borrow/{borrower_id}", response_model=List[transaction_schema.ReturnedTransaction])
+@router.get("/get/transactions/borrow/{borrower_id}", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_borrow_transactions(borrower_id: int, db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_borrow_transactions(db, borrower_id=borrower_id)
 
-@router.get("/get/transaction/lend/{lender_id}", response_model=List[transaction_schema.ReturnedTransaction])
+@router.get("/get/transactions/lend/{lender_id}", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_lender_transactions(lender_id: int, db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_lend_transactions(db, lender_id=lender_id)
 
-@router.get("/get/transaction/both/{user_id}", response_model=List[transaction_schema.ReturnedTransaction])
+@router.get("/get/transactions/both/{user_id}", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_both_transactions(user_id: int, db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_both_transactions(db, user_id=user_id)
