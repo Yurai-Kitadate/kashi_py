@@ -37,6 +37,17 @@ async def done_transaction(
     return await transaction_crud.accept_transaction(db, transaction_body, original=transaction)
 
 
+@router.put("/validate/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
+async def validate_transaction(
+    transaction_id: int, transaction_body: transaction_schema.InsertedTransaction, db: AsyncSession = Depends(get_db)
+):
+    transaction = await transaction_crud.get_transaction(db, transaction_id=transaction_id)
+    if transaction is None:
+        raise HTTPException(status_code=404, detail="transaction not found")
+
+    return await transaction_crud.validate_transaction(db, transaction_body, original=transaction)
+
+
 @router.get("/get/transactions", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_transactions(db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_transactions(db)
