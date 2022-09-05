@@ -15,7 +15,7 @@ async def create_transaction(
     return await transaction_crud.create_transaction(db, transaction_body)
 
 
-@router.put("/done/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
+@router.put("/done/transaction/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
 async def done_transaction(
     transaction_id: int, transaction_body: transaction_schema.InsertedTransaction, db: AsyncSession = Depends(get_db)
 ):
@@ -26,8 +26,8 @@ async def done_transaction(
     return await transaction_crud.done_transaction(db, transaction_body, original=transaction)
 
 
-@router.put("/accept/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
-async def done_transaction(
+@router.put("/accept/transaction/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
+async def accept_transaction(
     transaction_id: int, transaction_body: transaction_schema.InsertedTransaction, db: AsyncSession = Depends(get_db)
 ):
     transaction = await transaction_crud.get_transaction(db, transaction_id=transaction_id)
@@ -37,7 +37,7 @@ async def done_transaction(
     return await transaction_crud.accept_transaction(db, transaction_body, original=transaction)
 
 
-@router.put("/validate/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
+@router.put("/validate/transaction/{transaction_id}", response_model=transaction_schema.ReturnedTransaction)
 async def validate_transaction(
     transaction_id: int, transaction_body: transaction_schema.InsertedTransaction, db: AsyncSession = Depends(get_db)
 ):
@@ -75,3 +75,13 @@ async def get_lender_transactions(lender_id: int, db: AsyncSession = Depends(get
 @router.get("/get/transactions/both/{user_id}", response_model=List[transaction_schema.ReturnedTransaction])
 async def get_both_transactions(user_id: int, db: AsyncSession = Depends(get_db)):
     return await transaction_crud.get_both_transactions(db, user_id=user_id)
+
+
+@router.get("/get/transactions/applied/{user_id}", response_model=List[transaction_schema.ReturnedTransaction])
+async def get_applied_transactions(user_id: int, db: AsyncSession = Depends(get_db)):
+    return await transaction_crud.get_applied_transactions(db, user_id=user_id)
+
+
+@router.get("/get/transactions/appling/{user_id}", response_model=List[transaction_schema.ReturnedTransaction])
+async def get_appling_transactions(user_id: int, db: AsyncSession = Depends(get_db)):
+    return await transaction_crud.get_appling_transactions(db, user_id=user_id)

@@ -2,7 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Tuple, Optional
 import api.models.transaction as transaction_model
 import api.schemas.transaction as transaction_schema
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, and_
+from sqlalchemy.engine import Result
 
 
 async def create_transaction(
@@ -67,6 +68,7 @@ async def get_transactions(db: AsyncSession) -> List[Tuple[int, int, int, int, s
                 transaction_model.Transaction.transaction_id,
                 transaction_model.Transaction.borrower_id,
                 transaction_model.Transaction.lender_id,
+                transaction_model.Transaction.applier_id,
                 transaction_model.Transaction.yen,
                 transaction_model.Transaction.description,
                 transaction_model.Transaction.is_valid,
@@ -89,12 +91,13 @@ async def get_borrow_transactions(db: AsyncSession, borrower_id: int) -> List[tr
             transaction_model.Transaction.transaction_id,
             transaction_model.Transaction.borrower_id,
             transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.applier_id,
             transaction_model.Transaction.yen,
             transaction_model.Transaction.description,
             transaction_model.Transaction.is_valid,
             transaction_model.Transaction.is_done,
             transaction_model.Transaction.is_accepted
-        ).filter(transaction_model.Transaction.borrower_id == borrower_id)
+        ).filter(and_(transaction_model.Transaction.borrower_id == borrower_id, transaction_model.Transaction.is_valid == 1, transaction_model.Transaction.is_done == 0))
     )
     return result.all()
 
@@ -105,12 +108,13 @@ async def get_lend_transactions(db: AsyncSession, lender_id: int) -> List[transa
             transaction_model.Transaction.transaction_id,
             transaction_model.Transaction.borrower_id,
             transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.applier_id,
             transaction_model.Transaction.yen,
             transaction_model.Transaction.description,
             transaction_model.Transaction.is_valid,
             transaction_model.Transaction.is_done,
             transaction_model.Transaction.is_accepted
-        ).filter(transaction_model.Transaction.lender_id == lender_id)
+        ).filter(and_(transaction_model.Transaction.lender_id == lender_id, transaction_model.Transaction.is_valid == 1, transaction_model.Transaction.is_done == 0))
     )
     return result.all()
 
@@ -121,11 +125,52 @@ async def get_both_transactions(db: AsyncSession, user_id: int) -> List[transact
             transaction_model.Transaction.transaction_id,
             transaction_model.Transaction.borrower_id,
             transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.applier_id,
             transaction_model.Transaction.yen,
             transaction_model.Transaction.description,
             transaction_model.Transaction.is_valid,
             transaction_model.Transaction.is_done,
             transaction_model.Transaction.is_accepted
-        ).filter(or_(transaction_model.Transaction.lender_id == user_id, transaction_model.Transaction.borrower_id == user_id))
+        ).filter(and_(or_(transaction_model.Transaction.lender_id == user_id, transaction_model.Transaction.borrower_id == user_id), transaction_model.Transaction.is_valid == 1), transaction_model.Transaction.is_done == 0)
+    )
+    return result.all()
+
+
+async def get_applied_transactions(db: AsyncSession, user_id: int) -> List[transaction_model.Transaction]:
+    result: Result = await db.execute(
+        select(
+            transaction_model.Transaction.transaction_id,
+            transaction_model.Transaction.borrower_id,
+            transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.applier_id,
+            transaction_model.Transaction.yen,
+            transaction_model.Transaction.description,
+            transaction_model.Transaction.is_valid,
+            transaction_model.Transaction.is_done,
+            transaction_model.Transaction.is_accepted
+        ).filter(
+            and_(transaction_model.Transaction.is_accepted == 0,
+                 or_(
+                     and_(
+                         or_(
+                             transaction_model.Transaction.lender_id == user_id, transaction_model.Transaction.borrower_id == user_id), transaction_model.Transaction.is_valid == 0),
+                     and_(transaction_model.Transaction.is_done == 1, transaction_model.Transaction.lender_id == user_id,))))
+    )
+    return result.all()
+
+
+async def get_appling_transactions(db: AsyncSession, user_id: int) -> List[transaction_model.Transaction]:
+    result: Result = await db.execute(
+        select(
+            transaction_model.Transaction.transaction_id,
+            transaction_model.Transaction.borrower_id,
+            transaction_model.Transaction.lender_id,
+            transaction_model.Transaction.applier_id,
+            transaction_model.Transaction.yen,
+            transaction_model.Transaction.description,
+            transaction_model.Transaction.is_valid,
+            transaction_model.Transaction.is_done,
+            transaction_model.Transaction.is_accepted
+        ).filter(or_(and_(transaction_model.Transaction.applier_id == user_id, transaction_model.Transaction.is_valid == 0), transaction_model.Transaction.borrower_id == user_id, transaction_model.Transaction.is_done == 1))
     )
     return result.all()

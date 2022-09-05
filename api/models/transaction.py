@@ -8,6 +8,7 @@ class Transaction(Base):
     transaction_id = Column(Integer, primary_key=True)
     borrower_id = Column(Integer, nullable=False)
     lender_id = Column(Integer, nullable=False)
+    applier_id = Column(Integer, nullable=False)
     yen = Column(Integer, nullable=False)
     description = Column(String(50))
     is_valid = Column(Integer, nullable=False)

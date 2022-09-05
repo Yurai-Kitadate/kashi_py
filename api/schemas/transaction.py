@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class InsertedTransaction(BaseModel):
     borrower_id: int
     lender_id: int
+    applier_id: int
     yen: int
     description: str
     is_valid: int
@@ -15,6 +16,7 @@ class ReturnedTransaction(BaseModel):
     transaction_id: int
     borrower_id: int
     lender_id: int
+    applier_id: int
     yen: int
     description: str
     is_valid: int
